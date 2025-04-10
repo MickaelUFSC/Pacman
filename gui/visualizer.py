@@ -1,41 +1,84 @@
 import pygame
 import time
 
-TILE_SIZE = 30
-WALL_COLOR = (0, 0, 0)
-FOOD_COLOR = (255, 215, 0)
-PACMAN_COLOR = (50, 200, 255)
-BG_COLOR = (255, 255, 255)
+CELL_SIZE = 24
+WALL_COLOR = (0, 0, 128)           # Azul escuro
+FOOD_COLOR = (255, 255, 0)         # Amarelo
+PACMAN_COLOR = (255, 255, 0)       # Amarelo (PacMan)
+PATH_COLOR = (50, 50, 150)         # Azul claro
+BACKGROUND_COLOR = (0, 0, 0)       # Preto
 
-def draw_grid(screen, map_grid, pac_pos, foods):
-    screen.fill(BG_COLOR)
-    for i, row in enumerate(map_grid):
-        for j, cell in enumerate(row):
-            x, y = j * TILE_SIZE, i * TILE_SIZE
-            if cell == '#':
-                pygame.draw.rect(screen, WALL_COLOR, (x, y, TILE_SIZE, TILE_SIZE))
-            elif (i, j) in foods:
-                pygame.draw.circle(screen, FOOD_COLOR, (x + TILE_SIZE // 2, y + TILE_SIZE // 2), TILE_SIZE // 6)
+class Visualizer:
+    def __init__(self, map_grid):
+        pygame.init()
+        self.map_grid = [list(row) for row in map_grid]
+        self.rows = len(map_grid)
+        self.cols = len(map_grid[0])
+        self.width = self.cols * CELL_SIZE
+        self.height = self.rows * CELL_SIZE
+        self.screen = pygame.display.set_mode((self.width, self.height))
+        pygame.display.set_caption("PacMan Visualizer")
 
-    # Desenha o PacMan
-    pi, pj = pac_pos
-    pygame.draw.circle(screen, PACMAN_COLOR, (pj * TILE_SIZE + TILE_SIZE // 2, pi * TILE_SIZE + TILE_SIZE // 2), TILE_SIZE // 3)
+    def draw_cell(self, row, col, color):
+        pygame.draw.rect(
+            self.screen,
+            color,
+            (col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE)
+        )
 
-    pygame.display.flip()
+    def draw_food(self, row, col):
+        center = (col * CELL_SIZE + CELL_SIZE // 2, row * CELL_SIZE + CELL_SIZE // 2)
+        radius = CELL_SIZE // 6
+        pygame.draw.circle(self.screen, FOOD_COLOR, center, radius)
 
-def animate_solution(map_grid, solution_path):
-    pygame.init()
-    rows, cols = len(map_grid), len(map_grid[0])
-    screen = pygame.display.set_mode((cols * TILE_SIZE, rows * TILE_SIZE))
-    pygame.display.set_caption("Busca Visual")
+    def draw_pacman(self, row, col):
+        center = (col * CELL_SIZE + CELL_SIZE // 2, row * CELL_SIZE + CELL_SIZE // 2)
+        radius = CELL_SIZE // 2 - 2
+        pygame.draw.circle(self.screen, PACMAN_COLOR, center, radius)
 
-    foods = {(i, j) for i in range(rows) for j in range(cols) if map_grid[i][j] == '.'}
+    def draw_map(self):
+        for i in range(self.rows):
+            for j in range(self.cols):
+                cell = self.map_grid[i][j]
+                if cell == '#':
+                    self.draw_cell(i, j, WALL_COLOR)
+                else:
+                    self.draw_cell(i, j, BACKGROUND_COLOR)
+                    if cell == '.':
+                        self.draw_food(i, j)
 
-    for node in solution_path:
-        pos, remaining = node.state
-        draw_grid(screen, map_grid, pos, remaining)
-        time.sleep(0.1)
+    def update_pacman_position(self, old_pos, new_pos):
+        row, col = old_pos
+        if self.map_grid[row][col] == '.':
+            self.map_grid[row][col] = ' '  # comeu a comida
+        self.draw_cell(row, col, BACKGROUND_COLOR)
 
-    print("✅ Animação concluída.")
-    pygame.time.wait(2000)
-    pygame.quit()
+        row, col = new_pos
+        self.draw_pacman(row, col)
+
+    def visualize(self, path):
+        clock = pygame.time.Clock()
+        self.draw_map()
+        pygame.display.update()
+
+        for i in range(1, len(path)):
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return
+
+            self.update_pacman_position(path[i-1], path[i])
+            pygame.display.update()
+            clock.tick(10)  # 10 frames por segundo
+
+        # Espera até o usuário fechar
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+        pygame.quit()
+
+def animate_solution(map_grid, path):
+    vis = Visualizer(map_grid)
+    vis.visualize(path)
