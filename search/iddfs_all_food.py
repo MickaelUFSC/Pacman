@@ -13,8 +13,8 @@ def iddfs_all_food(start_state, graph_nodes, max_depth=300):
         visited = set()
         result = dls(start_state, graph_nodes, depth, [], visited)
         if result:
-            return result
-    return None
+            return result, visited
+    return None, visited
 
 def dls(state, graph_nodes, depth, path, visited):
     """

@@ -57,7 +57,7 @@ def astar_all_food1(start_state, graph_nodes):
         visited.add(key)
 
         if current_state.is_goal_state():
-            return path
+            return path, visited
 
         current_node = graph_nodes[current_state.pacman_pos]
         for neighbor, cost in current_node.neighbors:
@@ -72,4 +72,4 @@ def astar_all_food1(start_state, graph_nodes):
 
             heapq.heappush(open_set, (new_f, new_g, next(counter), new_state, path + [new_pos]))
 
-    return None
+    return None, visited

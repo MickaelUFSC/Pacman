@@ -23,7 +23,7 @@ def bfs_all_food(start_state, graph_nodes):
         current_state, path = queue.popleft()
 
         if current_state.is_goal_state():
-            return path
+            return path, visited
 
         current_node = graph_nodes[current_state.pacman_pos]
 
@@ -36,4 +36,4 @@ def bfs_all_food(start_state, graph_nodes):
                 visited.add(new_key)
                 queue.append((new_state, path + [new_state.pacman_pos]))
 
-    return None
+    return None, visited

@@ -60,4 +60,4 @@ def astar_all_food(start_state, graph_nodes):
 
             heapq.heappush(open_set, (new_f, new_g, next(counter), new_state, path + [new_pos]))
 
-    return None
+    return None, visited
