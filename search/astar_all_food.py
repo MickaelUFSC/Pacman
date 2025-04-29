@@ -13,9 +13,13 @@ def count_connected_food(food_positions, radius=3):
 
 def heuristic(state):
     pac = state.pacman_pos
-    return (sum(manhattan(pac, food) for food in state.food_positions)*0.25 + 
-    len(state.food_positions) * 2 + 
-    count_connected_food(state.food_positions) * 3.8)
+    if not state.food_positions:
+        return 0  # Não há mais comidas; já está no objetivo
+    return (
+        min(manhattan(pac, food) for food in state.food_positions) * 0.35 +
+        len(state.food_positions) * 3 +
+        count_connected_food(state.food_positions) * 0.8
+    )
 
 def astar_all_food(start_state, graph_nodes):
     """
@@ -40,7 +44,8 @@ def astar_all_food(start_state, graph_nodes):
         visited.add(key)
 
         if current_state.is_goal_state():
-            return path
+            #print(path)
+            return path, visited
 
         current_node = graph_nodes[current_state.pacman_pos]
         for neighbor, cost in current_node.neighbors:

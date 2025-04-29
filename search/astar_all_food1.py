@@ -13,41 +13,28 @@ def count_connected_food(food_positions, radius=3):
 
 def heuristic(state):
     pac = state.pacman_pos
-    food_set = state.food_positions
-
-    if not food_set:
+    foods = state.food_positions
+    if not foods:
         return 0
 
-    food = list(food_set)
+    # Distância até o alimento mais próximo
+    min_dist = min(manhattan(pac, food) for food in foods)
 
-    # Menor distância até uma comida
-    min_to_food = min(manhattan(pac, f) for f in food)
+    # Quantidade de comida
+    food_count = len(foods)
 
-    # Maior distância entre qualquer par de comidas
-    max_between_foods = 0
-    for i in range(len(food)):
-        for j in range(i + 1, len(food)):
-            dist = manhattan(food[i], food[j])
-            if dist > max_between_foods:
-                max_between_foods = dist
+    # Estimativa de agrupamento mais leve (sem calcular todos os vizinhos)
+    # Considera a distância média de cada comida até o centroide (boa aproximação)
+    avg_cluster_dist = 0
+    if food_count > 1:
+        cx = sum(f[0] for f in foods) / food_count
+        cy = sum(f[1] for f in foods) / food_count
+        avg_cluster_dist = sum(abs(f[0] - cx) + abs(f[1] - cy) for f in foods) / food_count
 
-    # Número de comidas restantes
-    food_count = len(food)
-
-    # Clusters de comidas (comidas próximas entre si)
-    cluster_bonus = 0
-    for f1 in food:
-        cluster_bonus += sum(1 for f2 in food if f1 != f2 and manhattan(f1, f2) <= 2)
-
-    return (
-        min_to_food * 1.0 +
-        max_between_foods * 1.0 +
-        food_count * 1.2 -
-        cluster_bonus * 0.3
-    )
+    return min_dist * 1.5 + food_count * 2 + avg_cluster_dist * 1.2
 
 
-def astar_all_food(start_state, graph_nodes):
+def astar_all_food1(start_state, graph_nodes):
     """
     A* para comer todas as comidas.
     :param start_state: GameState

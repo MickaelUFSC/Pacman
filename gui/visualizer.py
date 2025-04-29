@@ -60,7 +60,18 @@ class Visualizer:
         clock = pygame.time.Clock()
         self.draw_map()
         pygame.display.update()
-
+        
+        # Aguarda o pressionamento da tecla espaço para iniciar
+        waiting = True
+        while waiting:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        waiting = False
+        
         for i in range(1, len(path)):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

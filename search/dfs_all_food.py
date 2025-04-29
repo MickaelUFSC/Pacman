@@ -21,7 +21,8 @@ def dfs_all_food(start_state, graph_nodes):
         current_state, path = stack.pop()
 
         if current_state.is_goal_state():
-            return path
+            #print(path)
+            return path, visited
 
         current_node = graph_nodes[current_state.pacman_pos]
 
@@ -34,4 +35,4 @@ def dfs_all_food(start_state, graph_nodes):
                 visited.add(new_key)
                 stack.append((new_state, path + [new_state.pacman_pos]))
 
-    return None
+    return None, visited

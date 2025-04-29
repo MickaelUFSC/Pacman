@@ -5,12 +5,12 @@ from core.graph_builder import GraphBuilder
 from core.game_state import GameState
 
 from search.astar_all_food import astar_all_food
-from search.astar_all_food1 import astar_all_food as astar_all_food1
+from search.astar_all_food1 import astar_all_food1 as astar_all_food1
 from search.bfs_all_food import bfs_all_food
 from search.dfs_all_food import dfs_all_food
 from search.iddfs_all_food import iddfs_all_food
 
-MAPAS = ["easy.map", "medium.map", "hard.map"]
+MAPAS = ["easy.map", "medium.map", "hard.map", "pacmap.map", "pacman.map"]
 ALGORITMOS = {
     "A* - H1": astar_all_food,
     "A* - H2": astar_all_food1,
